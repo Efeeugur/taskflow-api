@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    container_name: taskflow-api
+    ports:
+      - "3000:3000"
+    volumes:
+      # Görevler ve loglar konteyner silinse de korunur
+      - taskflow-data:/app/data
+      - taskflow-logs:/app/logs
+    restart: unless-stopped
+
+volumes:
+  taskflow-data:
+  taskflow-logs:

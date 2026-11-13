@@ -1,0 +1,976 @@
+{
+  "info": {
+    "name": "TASKFLOW API",
+    "description": "TASKFLOW - Görev ve Proje Yönetim Sistemi API testleri. Her isteğin Tests sekmesinde otomatik kontroller var. Tümünü çalıştırmak için: Collection > Run.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "taskId",
+      "value": ""
+    },
+    {
+      "key": "ruleTaskId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - CRUD (zorunlu)",
+      "item": [
+        {
+          "name": "1. Görev ekle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks"
+              ]
+            },
+            "description": "Yeni görev oluşturur. Oluşan id, sonraki istekler için taskId değişkenine kaydedilir.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Kullanıcı girişi endpoint'i\",\n  \"description\": \"JWT ile backend girişi\",\n  \"priority\": \"high\",\n  \"assignee\": \"Efe\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "const t = pm.response.json().data;",
+                  "pm.test(\"Yeni görev todo durumunda başlar\", () => pm.expect(t.status).to.eql(\"todo\"));",
+                  "pm.test(\"id ve zaman damgaları atanır\", () => { pm.expect(t.id).to.be.a(\"number\"); pm.expect(t.createdAt).to.be.a(\"string\"); });",
+                  "pm.collectionVariables.set(\"taskId\", t.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Görevleri listele",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "pm.test(\"Liste dizi döner\", () => pm.expect(pm.response.json().data).to.be.an(\"array\"));",
+                  "pm.test(\"Eklenen görev listede\", () => pm.expect(pm.response.json().data.map(t => t.id)).to.include(pm.collectionVariables.get(\"taskId\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Görev detayı",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{taskId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "pm.test(\"Doğru görev döner\", () => pm.expect(pm.response.json().data.id).to.eql(pm.collectionVariables.get(\"taskId\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Görevi güncelle",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{taskId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in-progress\",\n  \"priority\": \"medium\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "const t = pm.response.json().data;",
+                  "pm.test(\"Alanlar güncellenir\", () => { pm.expect(t.status).to.eql(\"in-progress\"); pm.expect(t.priority).to.eql(\"medium\"); });",
+                  "pm.test(\"updatedAt createdAt'tan farklı\", () => pm.expect(t.updatedAt).to.not.eql(t.createdAt));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Görevi sil",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{taskId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "pm.test(\"Silinen görev döner\", () => pm.expect(pm.response.json().data.id).to.eql(pm.collectionVariables.get(\"taskId\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Silinen görevi getir (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{taskId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Hata durumları",
+      "item": [
+        {
+          "name": "Başlıksız görev (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Başlık yok\",\n  \"priority\": \"urgent\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(false));",
+                  "pm.test(\"Alan bazlı hata listesi döner\", () => pm.expect(pm.response.json().details).to.be.an(\"array\").that.is.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bozuk JSON (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"tırnak kapanmadı}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Geçersiz id (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "abc"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tanımsız rota (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/olmayan-adres",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "olmayan-adres"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Durum geçiş kuralları",
+      "item": [
+        {
+          "name": "Hazırlık: kural görevi ekle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Durum kuralı denemesi\",\n  \"assignee\": \"Efe\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "pm.collectionVariables.set(\"ruleTaskId\", pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "todo -> completed atlama (409)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{ruleTaskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{ruleTaskId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "todo -> in-progress (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{ruleTaskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{ruleTaskId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in-progress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "in-progress -> completed (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{ruleTaskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{ruleTaskId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tamamlanan görevi değiştirme (409)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{ruleTaskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{ruleTaskId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Değiştirilemez\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Filtreleme, arama, sayfalama, sıralama",
+      "item": [
+        {
+          "name": "Duruma göre filtrele",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks?status=completed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "completed"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "pm.test(\"Hepsi completed\", () => pm.response.json().data.forEach(t => pm.expect(t.status).to.eql(\"completed\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Önceliğe göre filtrele",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks?priority=high",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks"
+              ],
+              "query": [
+                {
+                  "key": "priority",
+                  "value": "high"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "pm.test(\"Hepsi high\", () => pm.response.json().data.forEach(t => pm.expect(t.priority).to.eql(\"high\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Görev ara",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/search?keyword=kural",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "kural"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "pm.test(\"Sonuçlar anahtar kelimeyi içerir\", () => pm.response.json().data.forEach(t => pm.expect((t.title + \" \" + t.description).toLowerCase()).to.include(\"kural\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kişiye göre listele",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/assignee/Efe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "assignee",
+                "Efe"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "pm.test(\"Hepsi Efe'ye atanmış\", () => pm.response.json().data.forEach(t => pm.expect(t.assignee.toLowerCase()).to.eql(\"efe\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sayfalama",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks?page=1&limit=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"En fazla 2 kayıt\", () => pm.expect(b.data.length).to.be.at.most(2));",
+                  "pm.test(\"Sayfa bilgisi döner\", () => pm.expect(b.meta).to.include.keys(\"page\", \"limit\", \"total\", \"totalPages\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sıralama (yeniden eskiye)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks?sort=-createdAt",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "-createdAt"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"createdAt azalan sırada\", () => { for (let i = 1; i < d.length; i++) pm.expect(d[i-1].createdAt >= d[i].createdAt).to.be.true; });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Raporlar",
+      "item": [
+        {
+          "name": "Tamamlanan görevler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reports/completed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "completed"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "pm.test(\"Sayı ve liste tutarlı\", () => { const d = pm.response.json().data; pm.expect(d.count).to.eql(d.tasks.length); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bekleyen görevler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reports/pending",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "pending"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "pm.test(\"Tamamlanan görev yok\", () => pm.response.json().data.tasks.forEach(t => pm.expect(t.status).to.not.eql(\"completed\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Genel özet",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reports/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "summary"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"Özet alanları var\", () => pm.expect(d).to.include.keys(\"total\", \"completionRate\", \"byStatus\", \"byPriority\", \"byAssignee\"));",
+                  "pm.test(\"Durum sayıları toplamı tutar\", () => pm.expect(Object.values(d.byStatus).reduce((a, b) => a + b, 0)).to.eql(d.total));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Temizlik: kural görevini sil",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{ruleTaskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tasks",
+                "{{ruleTaskId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Durum kodu 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Yanıt formatı doğru\", () => pm.expect(pm.response.json().success).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

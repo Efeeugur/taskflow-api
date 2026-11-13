@@ -1,0 +1,22 @@
+{
+  "name": "taskflow-api",
+  "version": "1.0.0",
+  "description": "TASKFLOW - Görev ve Proje Yönetim Sistemi REST API (Node.js + Express)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node scripts/seed.js",
+    "test": "node --test tests/api.test.js"
+  },
+  "author": "Efe Uğur",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "express": "^4.22.3",
+    "swagger-ui-express": "^5.0.1"
+  }
+}

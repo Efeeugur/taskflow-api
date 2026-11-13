@@ -1,0 +1,65 @@
+{
+  "lastId": 6,
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Veri modelini tasarla",
+      "description": "Task alanlarını ve kurallarını belirle",
+      "status": "completed",
+      "priority": "high",
+      "assignee": "Efe",
+      "createdAt": "2026-11-10T08:41:45.780Z",
+      "updatedAt": "2026-11-10T20:41:45.780Z"
+    },
+    {
+      "id": 2,
+      "title": "Express iskeletini kur",
+      "description": "Klasör yapısı, routing ve middleware sırası",
+      "status": "completed",
+      "priority": "high",
+      "assignee": "Efe",
+      "createdAt": "2026-11-10T10:41:45.780Z",
+      "updatedAt": "2026-11-11T08:41:45.780Z"
+    },
+    {
+      "id": 3,
+      "title": "Logger middleware yaz",
+      "description": "Method, endpoint, zaman damgası, durum kodu ve süre",
+      "status": "in-progress",
+      "priority": "medium",
+      "assignee": "Ayşe",
+      "createdAt": "2026-11-11T06:41:45.780Z",
+      "updatedAt": "2026-11-12T12:41:45.780Z"
+    },
+    {
+      "id": 4,
+      "title": "Postman testlerini hazırla",
+      "description": "CRUD uç noktaları için test scriptleri",
+      "status": "todo",
+      "priority": "medium",
+      "assignee": "Mehmet",
+      "createdAt": "2026-11-12T02:41:45.780Z",
+      "updatedAt": "2026-11-12T02:41:45.780Z"
+    },
+    {
+      "id": 5,
+      "title": "README ve dokümantasyon",
+      "description": "Kurulum adımları ve API dokümanı",
+      "status": "todo",
+      "priority": "low",
+      "assignee": "Ayşe",
+      "createdAt": "2026-11-12T22:41:45.780Z",
+      "updatedAt": "2026-11-12T22:41:45.780Z"
+    },
+    {
+      "id": 6,
+      "title": "Docker yapılandırması",
+      "description": "Dockerfile ve docker-compose ile backend çalıştırma",
+      "status": "todo",
+      "priority": "high",
+      "assignee": null,
+      "createdAt": "2026-11-13T03:41:45.780Z",
+      "updatedAt": "2026-11-13T03:41:45.780Z"
+    }
+  ]
+}
